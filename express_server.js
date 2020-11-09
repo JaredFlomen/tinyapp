@@ -36,13 +36,15 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const shortURL = req.params.shortURL;
-  const templateVars = { shortURL, longURL: urlDatabase[shortURL] };
-  //res.render('urls_show', templateVars);
-  const longestURL = urlDatabase[shortURL];
-  // console.log(longestURL);
-  res.redirect(longestURL);
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.render('urls_show', templateVars);
 });
+
+app.get('/u/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longestURL = urlDatabase[shortURL];
+  res.redirect(longestURL);
+})
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
