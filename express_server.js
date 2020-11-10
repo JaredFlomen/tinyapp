@@ -48,6 +48,12 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
+//When clicking 'logout' button -> clear cookies
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
 //Edits a url from browser POST request
 app.post('/urls/:shortURL', (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.editURL;
@@ -65,7 +71,7 @@ app.post('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     username: req.cookies['username']
-  }
+  };
   res.render('urls_new', templateVars);
 });
 
