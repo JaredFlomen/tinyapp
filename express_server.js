@@ -30,7 +30,18 @@ app.get('/urls', (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
-})
+});
+
+//Redirects to edit page
+app.post('/urls/:shortURL/edit', (req, res) => {
+  res.redirect('/urls');
+});
+
+//Edits a url from browser POST request
+app.post('/urls/:shortURL', (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.editURL;
+  res.redirect('/urls');
+});
 
 //Browser sends a POST request with a longURL & a shortURL is generated and stored within the database with the corresponding longURL
 app.post('/urls', (req, res) => {
