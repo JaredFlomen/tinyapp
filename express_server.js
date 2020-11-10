@@ -44,8 +44,12 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 
 //Records username input and sets to cookie named 'username'
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.login);
-  res.redirect('/urls');
+  if (!req.body.login) {
+    res.redirect('/urls');
+  } else {
+    res.cookie('username', req.body.login);
+    res.redirect('/urls');
+  }
 });
 
 //When clicking 'logout' button -> clear cookies
@@ -56,8 +60,13 @@ app.post('/logout', (req, res) => {
 
 //Edits a url from browser POST request
 app.post('/urls/:shortURL', (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.editURL;
-  res.redirect('/urls');
+  if (!req.body.editURL) {
+    const shortURL = req.params.shortURL
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    urlDatabase[req.params.shortURL] = req.body.editURL;
+    res.redirect('/urls');
+  }
 });
 
 //Browser sends a POST request with a longURL & a shortURL is generated and stored within the database with the corresponding longURL
