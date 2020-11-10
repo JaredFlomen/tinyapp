@@ -26,6 +26,12 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+//Deletes a url when delete button clicked
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+})
+
 //Browser sends a POST request with a longURL & a shortURL is generated and stored within the database with the corresponding longURL
 app.post('/urls', (req, res) => {
   const randomShortURL = generateRandomString();
