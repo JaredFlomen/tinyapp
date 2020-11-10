@@ -1,14 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+
+
 
 //Random string with 6 characters
 function generateRandomString() {
@@ -22,7 +27,7 @@ app.get('/', (req, res) => {
 
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
   res.render('urls_index', templateVars);
 });
 
@@ -37,6 +42,12 @@ app.post('/urls/:shortURL/edit', (req, res) => {
   res.redirect('/urls');
 });
 
+//Records username input and sets to cookie named 'username'
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.login);
+  res.redirect('/urls');
+});
+
 //Edits a url from browser POST request
 app.post('/urls/:shortURL', (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.editURL;
@@ -47,18 +58,20 @@ app.post('/urls/:shortURL', (req, res) => {
 app.post('/urls', (req, res) => {
   const randomShortURL = generateRandomString();
   urlDatabase[randomShortURL] = req.body.longURL; //obj[key]=value
-  // console.log(urlDatabase); --> Uncomment to test functionality
   res.redirect(`/urls/${randomShortURL}`); //Redirect to new shortURL 
 });
 
 //Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies['username']
+  }
+  res.render('urls_new', templateVars);
 });
 
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username'] };
   res.render('urls_show', templateVars);
 });
 
