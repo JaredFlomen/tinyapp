@@ -79,9 +79,18 @@ app.get('/register', (req, res) => {
 
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
 app.get('/urls', (req, res) => {
+  let emailPass = undefined;
+  if (emailPass === undefined) {
+    const templateVars = {
+      email: undefined,
+      urls: urlDatabase
+    }
+    return res.render('urls_index', templateVars)
+  } else {
   const emailPass = usersDB[req.cookies['user_id']].email
   const templateVars = { urls: urlDatabase, email: emailPass };
   res.render('urls_index', templateVars);
+  }
 });
 
 //Deletes a url when delete button clicked
@@ -174,8 +183,7 @@ app.get('/urls/new', (req, res) => {
 
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
 app.get('/urls/:shortURL', (req, res) => {
-  const emailPass = users[req.cookies['user_id']].email
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], email: emailPass };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], email: undefined };
   res.render('urls_show', templateVars);
 });
 
