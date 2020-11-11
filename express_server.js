@@ -52,7 +52,7 @@ app.post('/register', (req, res) => {
   const key = newUser["id"];
   usersDB[key] = newUser;
   //TO TEST THAT IT'S STORED PROPERLY
-  console.log(usersDB);
+  // console.log(usersDB);
   //DELETE ABOVE WHEN AUTHENTICATED
   res.redirect('/urls');
 });
