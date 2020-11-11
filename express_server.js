@@ -12,20 +12,84 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Object to save logIn info
+const usersDB = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
 //Random string with 6 characters
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 };
+
+//Logs the email, password and ID in users object
+app.post('/register', (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.send('400');
+  }
+
+  for (const user in usersDB) {
+    if (usersDB[user].email === req.body.email) {
+      return res.send('400');
+    }
+  }
+
+  const newUser = {
+    "id": generateRandomString(), 
+    'email': req.body.email,
+    'password': req.body.password
+  };
+  res.cookie('user_id', newUser["id"]);
+  const key = newUser["id"];
+  usersDB[key] = newUser;
+  res.redirect('/urls');
+});
+
+app.get('/login', (req, res) => {
+  const templateVars = {
+    email: usersDB[req.cookies['user_id']]
+  };
+  res.render('urls_login', templateVars);
+});
 
 //A basic request that sends to the browser the string Hello! with no aditional code (ex: HTML)
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
 
+//Returns the register template
+app.get('/register', (req, res) => {
+  const templateVars = {
+    email: undefined
+  };
+  res.render('urls_register', templateVars);
+});
+
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
-  res.render('urls_index', templateVars);
+  const user = usersDB[req.cookies['user_id']];
+  if (user === undefined) {
+    const templateVars = {
+      urls: urlDatabase
+    }
+    return res.render('urls_index', templateVars)
+  } else {
+    let emailPass = user.email;
+    const templateVars = { 
+      urls: urlDatabase, 
+      email: emailPass 
+    };
+    res.render('urls_index', templateVars);
+  }
 });
 
 //Deletes a url when delete button clicked
@@ -41,28 +105,56 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 
 //Records username input and sets to cookie named 'username'
 app.post('/login', (req, res) => {
-  if (!req.body.login) {
-    res.redirect('/urls');
-  } else {
-    res.cookie('username', req.body.login);
-    res.redirect('/urls');
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(403).send('403');
   }
+  //If wrong email, NOPE
+  //If right email, wrong password, NOPE
+  //If right email, right pass, set cookie
+  for (const user in usersDB) {
+    if (usersDB[user].email === req.body.email) {
+      if (usersDB[user].password !== req.body.password) {
+        return res.status(403).send('403');
+      }
+    }
+    // return res.status(403).send('403');
+  }
+
+  // for (const user in usersDB) {
+  //   if (usersDB[user].email === req.body.email && usersDB[user].password === req.body.password) {
+      
+  //   }
+  // }
+
+  // let user = getUserByEmail(userDB, req.body.email);
+
+  
+  const newUser = {
+    "id": generateRandomString(), 
+    'email': req.body.email,
+    'password': req.body.password
+  };
+  res.cookie('user_id', user["id"]);
+  const key = newUser["id"];
+  usersDB[key] = newUser;
+  res.redirect('/urls');
+  
 });
 
 //When clicking 'logout' button -> clear cookies
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
+  res.clearCookie('user_id');
+  res.redirect('/register');
 });
 
 //Edits a url from browser POST request
 app.post('/urls/:shortURL', (req, res) => {
   if (!req.body.editURL) {
     const shortURL = req.params.shortURL
-    res.redirect(`/urls/${shortURL}`);
+    return res.redirect(`/urls/${shortURL}`);
   } else {
     urlDatabase[req.params.shortURL] = req.body.editURL;
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 });
 
@@ -75,21 +167,44 @@ app.post('/urls', (req, res) => {
 
 //Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    username: req.cookies['username']
-  };
-  res.render('urls_new', templateVars);
+  let user = usersDB[req.cookies['user_id']];
+  if (user === undefined) {
+    const templateVars = {
+      email: undefined
+    }
+    return res.render('urls_new', templateVars)
+  } else {
+    const templateVars = {
+      email: user.email,
+    };
+    return res.render('urls_new', templateVars);
+  }
 });
 
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username'] };
-  res.render('urls_show', templateVars);
+  //
+  const user = usersDB[req.cookies['user_id']];
+
+  if (user === undefined) {
+    const templateVars = {
+      urls: urlDatabase,
+      email: undefined
+    }
+    return res.render('urls_index', templateVars)
+  } else {
+    let emailPass = user.email;
+    const templateVars = { 
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL],
+      email: emailPass, 
+    };
+    res.render('urls_show', templateVars);
+  }
 });
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  // const shortURL = req.params.shortURL; CHECK IT WORKS *IT SHOULD*
   const longestURL = urlDatabase[req.params.shortURL];
   res.redirect(longestURL);
 });
