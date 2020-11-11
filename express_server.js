@@ -13,7 +13,27 @@ const urlDatabase = {
 };
 
 //Object to save logIn info
-const users = {};
+const usersDB = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
+//Helper function to find if email already exists
+// const checkUser = (db, emailCheck) => {
+//   for (const user in db) {
+//     if (user.email === emailCheck) {
+//       return res.send('400');
+//     }
+//   }
+// }
 
 //Random string with 6 characters
 function generateRandomString() {
@@ -22,6 +42,17 @@ function generateRandomString() {
 
 //Logs the email, password and ID in users object
 app.post('/register', (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.send('400');
+  }
+
+  for (const user in usersDB) {
+    if (usersDB[user].email === req.body.email) {
+      return res.send('400');
+    }
+  }
+  // const checkingUser = checkUser(usersDB, req.body.email);
+
   const newUser = {
     "id": generateRandomString(), 
     'email': req.body.email,
@@ -29,9 +60,9 @@ app.post('/register', (req, res) => {
   };
   res.cookie('user_id', newUser["id"]);
   const key = newUser["id"];
-  users[key] = newUser;
+  usersDB[key] = newUser;
   //TO TEST THAT IT'S STORED PROPERLY
-  console.log(users);
+  console.log(usersDB);
   //DELETE ABOVE WHEN AUTHENTICATED
   res.redirect('/urls');
 });
@@ -52,7 +83,7 @@ app.get('/register', (req, res) => {
 
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
 app.get('/urls', (req, res) => {
-  const emailPass = users[req.cookies['user_id']].email
+  const emailPass = usersDB[req.cookies['user_id']].email
   const templateVars = { urls: urlDatabase, email: emailPass };
   res.render('urls_index', templateVars);
 });
