@@ -39,7 +39,7 @@ app.post('/register', (req, res) => {
 
   for (const user in usersDB) {
     if (usersDB[user].email === req.body.email) {
-      return res.send('400');
+      return res.status(404).send('400');
     }
   }
 
@@ -79,9 +79,9 @@ app.get('/urls', (req, res) => {
   const user = usersDB[req.cookies['user_id']];
   if (user === undefined) {
     const templateVars = {
-      urls: urlDatabase
+      email: undefined,
     }
-    return res.render('urls_index', templateVars)
+    return res.render('urls_login', templateVars)
   } else {
     let emailPass = user.email;
     const templateVars = { 
@@ -134,7 +134,7 @@ app.post('/login', (req, res) => {
     'email': req.body.email,
     'password': req.body.password
   };
-  res.cookie('user_id', user["id"]);
+  res.cookie('user_id', newUser["id"]);
   const key = newUser["id"];
   usersDB[key] = newUser;
   res.redirect('/urls');
@@ -167,12 +167,12 @@ app.post('/urls', (req, res) => {
 
 //Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
 app.get('/urls/new', (req, res) => {
-  let user = usersDB[req.cookies['user_id']];
+  const user = usersDB[req.cookies['user_id']];
   if (user === undefined) {
     const templateVars = {
       email: undefined
-    }
-    return res.render('urls_new', templateVars)
+    };
+    return res.render('urls_login', templateVars)
   } else {
     const templateVars = {
       email: user.email,
