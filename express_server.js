@@ -8,22 +8,28 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca", 
+    userID: 'userRandomID',
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com", 
+    userID: 'user2RandomID'
+  },
 };
 
 //Object to save logIn info
 const usersDB = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
+//   "userRandomID": {
+//     id: "userRandomID", 
+//     email: "user@example.com", 
+//     password: "purple-monkey-dinosaur"
+//   },
+//  "user2RandomID": {
+//     id: "user2RandomID", 
+//     email: "user2@example.com", 
+//     password: "dishwasher-funk"
+//   }
 };
 
 //Random string with 6 characters
@@ -84,9 +90,10 @@ app.get('/urls', (req, res) => {
     return res.render('urls_login', templateVars)
   } else {
     let emailPass = user.email;
+    // console.log(urlsForUser());
     const templateVars = { 
       urls: urlDatabase, 
-      email: emailPass 
+      email: emailPass,
     };
     res.render('urls_index', templateVars);
   }
@@ -116,27 +123,28 @@ app.post('/login', (req, res) => {
       if (usersDB[user].password !== req.body.password) {
         return res.status(403).send('403');
       }
+      if (usersDB[user].password === req.body.password && usersDB[user].email === req.body.email) {
+        res.cookie('user_id', usersDB[user]["id"]);
+        return res.redirect('/urls');
+      }
     }
     // return res.status(403).send('403');
   }
 
   // for (const user in usersDB) {
   //   if (usersDB[user].email === req.body.email && usersDB[user].password === req.body.password) {
-      
   //   }
   // }
-
   // let user = getUserByEmail(userDB, req.body.email);
-
   
-  const newUser = {
-    "id": generateRandomString(), 
-    'email': req.body.email,
-    'password': req.body.password
-  };
-  res.cookie('user_id', newUser["id"]);
-  const key = newUser["id"];
-  usersDB[key] = newUser;
+  // const newUser = {
+  //   "id": generateRandomString(), 
+  //   'email': req.body.email,
+  //   'password': req.body.password
+  // };
+  // res.cookie('user_id', newUser["id"]);
+  // const key = newUser["id"];
+  // usersDB[key] = newUser;
   res.redirect('/urls');
   
 });
@@ -205,7 +213,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  const longestURL = urlDatabase[req.params.shortURL];
+  const longestURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longestURL);
 });
 
