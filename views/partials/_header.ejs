@@ -10,10 +10,15 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <% if (email === undefined) { %>
-        <form class="form-inline" action="/login" method="POST">
+        <form class="form-inline" action="/register" method="get">
           <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <input class="form-control" type="text" name="login" placeholder="Username" style="width: 200px">
-          <button type="submit" class="btn btn-outline-dark">Submit</button>
+          <button type="submit" class="btn btn-outline-dark">Register</button>
+          </div>
+        </form>
+        
+        <form class="form-inline" action="/login" method="get">
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <button type="submit" class="btn btn-outline-dark">Login</button>
           </div>
         </form>
       <% } %>

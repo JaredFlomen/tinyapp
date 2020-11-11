@@ -26,15 +26,6 @@ const usersDB = {
   }
 };
 
-//Helper function to find if email already exists
-// const checkUser = (db, emailCheck) => {
-//   for (const user in db) {
-//     if (user.email === emailCheck) {
-//       return res.send('400');
-//     }
-//   }
-// }
-
 //Random string with 6 characters
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
@@ -51,7 +42,6 @@ app.post('/register', (req, res) => {
       return res.send('400');
     }
   }
-  // const checkingUser = checkUser(usersDB, req.body.email);
 
   const newUser = {
     "id": generateRandomString(), 
@@ -67,6 +57,12 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
+app.get('/login', (req, res) => {
+  const templateVars = {
+    email: null
+  };
+  res.render('urls_login', templateVars);
+})
 
 //A basic request that sends to the browser the string Hello! with no aditional code (ex: HTML)
 app.get('/', (req, res) => {
@@ -101,12 +97,38 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 
 //Records username input and sets to cookie named 'username'
 app.post('/login', (req, res) => {
-  if (!req.body.login) {
-    return res.redirect('/urls');
-  } else {
-    res.cookie('username', req.body.login);
-    return res.redirect('/urls');
+  if (req.body.email === '' || req.body.password === '') {
+    res.send('403');
   }
+
+  for (const user in usersDB) {
+    if (usersDB[user].email === req.body.email) {
+      if (usersDB[user].password !== req.body.password) {
+        return res.send('403');
+      }
+    }
+  }
+
+  const newUser = {
+    "id": generateRandomString(), 
+    'email': req.body.email,
+    'password': req.body.password
+  };
+  res.cookie('user_id', newUser["id"]);
+  const key = newUser["id"];
+  usersDB[key] = newUser;
+  //TO TEST THAT IT'S STORED PROPERLY
+  console.log(usersDB);
+  //DELETE ABOVE WHEN AUTHENTICATED
+  res.redirect('/urls');
+
+
+  // if (!req.body.login) {
+  //   return res.redirect('/urls');
+  // } else {
+  //   res.cookie('username', req.body.login);
+  //   return res.redirect('/urls');
+  // }
 });
 
 //When clicking 'logout' button -> clear cookies
