@@ -12,9 +12,6 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//I screwed up and didn't branch properly, this is a test
-
-
 //Random string with 6 characters
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
@@ -23,6 +20,14 @@ function generateRandomString() {
 //A basic request that sends to the browser the string Hello! with no aditional code (ex: HTML)
 app.get('/', (req, res) => {
   res.send('Hello!');
+});
+
+//Returns the register template
+app.get('/register', (req, res) => {
+  const templateVars = {
+    username: req.cookies['username']
+  };
+  res.render('urls_register', templateVars);
 });
 
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
@@ -92,7 +97,6 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  // const shortURL = req.params.shortURL; CHECK IT WORKS *IT SHOULD*
   const longestURL = urlDatabase[req.params.shortURL];
   res.redirect(longestURL);
 });
