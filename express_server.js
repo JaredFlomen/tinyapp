@@ -29,8 +29,6 @@ const urlDatabase = {
 
 //Object/Database to save Login information
 const usersDB = {};
-//   "userRandomID": { id: "userRandomID", email: "user@example.com", password: "purple-monkey-dinosaur" },
-//  "user2RandomID": { id: "user2RandomID", email: "user2@example.com", password: "dishwasher-funk" }
 
 //REGISTER BUTTON
 
@@ -45,14 +43,6 @@ app.post('/register', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('400');
   }
-
-  //Checks if email is already in database
-  // for (const user in usersDB) {
-  //   if (usersDB[user].email === req.body.email) {
-  //     return res.status(400).send('400');
-  //   }
-  // }
-  // let databaseEmail = usersDB[user].email;
   let inputEmail = req.body.email;
   const checkUserEmail = getUserByEmail(usersDB, inputEmail);
 
@@ -86,20 +76,6 @@ app.post('/login', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(403).send('403');
   }
-  // for (const user in usersDB) {
-  //   if (usersDB[user].email === req.body.email) {
-  //     if (!(bcrypt.compareSync(req.body.password, usersDB[user].password))) {
-  //       return res.status(403).send('403');
-  //     }
-  //     if (bcrypt.compareSync(req.body.password, usersDB[user].password) && usersDB[user].email === req.body.email) {
-  //       req.session['user_id'] = usersDB[user]["id"];
-  //       return res.redirect('/urls');
-  //     }
-  //   }
-  // }
-  // res.redirect('/register');
-
-  //Testing out helper function 
   let inputEmail = req.body.email;
   let inputPassword = req.body.password;
   const checkUserEmail = getUserByEmail(usersDB, inputEmail);
@@ -226,7 +202,13 @@ app.get('/hello', (req, res) => {
 
 //A basic request that sends to the browser the string Hello! with no aditional code (ex: HTML)
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  let user = usersDB[req.session['user_id']];
+  if (!user) {
+    return res.redirect('/login')
+  } else {
+    res.redirect('/urls');
+  }
+  // res.send('Hello!');
 });
 
 //Ensuring our server is listening on our PORT provided at the top of the file
