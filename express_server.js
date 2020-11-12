@@ -18,6 +18,16 @@ const urlDatabase = {
   },
 };
 
+const urlsForUser = function (urlDB, id) {
+  let newDB = {};
+  for (const i in urlDB) {
+    if (urlDB[i].userID === id) {
+      newDB[i] = urlDB[i];
+    }
+  }
+  return newDB;
+};
+
 //Object to save logIn info
 const usersDB = {
 //   "userRandomID": {
@@ -90,9 +100,11 @@ app.get('/urls', (req, res) => {
     return res.render('urls_login', templateVars)
   } else {
     let emailPass = user.email;
-    // console.log(urlsForUser());
+
+    const superDB = urlsForUser(urlDatabase, usersDB[req.cookies['user_id']].id);
+    
     const templateVars = { 
-      urls: urlDatabase, 
+      urls: superDB, 
       email: emailPass,
     };
     res.render('urls_index', templateVars);
@@ -146,7 +158,6 @@ app.post('/login', (req, res) => {
   // const key = newUser["id"];
   // usersDB[key] = newUser;
   res.redirect('/urls');
-  
 });
 
 //When clicking 'logout' button -> clear cookies
@@ -185,6 +196,7 @@ app.get('/urls/new', (req, res) => {
     const templateVars = {
       email: user.email,
     };
+    console.log("OLD DB: ", urlDatabase);
     return res.render('urls_new', templateVars);
   }
 });
@@ -207,6 +219,11 @@ app.get('/urls/:shortURL', (req, res) => {
       longURL: urlDatabase[req.params.shortURL],
       email: emailPass, 
     };
+    urlDatabase[req.params.shortURL] = {
+      longURL: urlDatabase[req.params.shortURL],
+      userID: usersDB[req.cookies['user_id']].id,
+    };
+    console.log("OLD DB: ", urlDatabase);
     res.render('urls_show', templateVars);
   }
 });
