@@ -185,7 +185,9 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  const longestURL = urlDatabase[req.params.shortURL].longURL;
+  const shortURLKey = req.params.shortURL
+  console.log("FULL DB: ", urlDatabase);
+  const longestURL = urlDatabase[shortURLKey].longURL;
   res.redirect(longestURL);
 });
 
