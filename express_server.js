@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 // const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session')
 const bcrypt = require('bcrypt');
+const { urlsForUser, generateRandomString } = require('./helperFunctions')
 const app = express();
 const PORT = 8080;
 app.set('view engine', 'ejs');
@@ -26,34 +27,25 @@ const urlDatabase = {
   },
 };
 
-const urlsForUser = function (urlDB, id) {
-  let newDB = {};
-  for (const i in urlDB) {
-    if (urlDB[i].userID === id) {
-      newDB[i] = urlDB[i];
-    }
-  }
-  return newDB;
-};
+// const urlsForUser = function (urlDB, id) {
+//   let newDB = {};
+//   for (const i in urlDB) {
+//     if (urlDB[i].userID === id) {
+//       newDB[i] = urlDB[i];
+//     }
+//   }
+//   return newDB;
+// };
 
 //Object to save Login information
-const usersDB = {
-//   "userRandomID": {
-//     id: "userRandomID", 
-//     email: "user@example.com", 
-//     password: "purple-monkey-dinosaur"
-//   },
-//  "user2RandomID": {
-//     id: "user2RandomID", 
-//     email: "user2@example.com", 
-//     password: "dishwasher-funk"
-//   }
-};
+const usersDB = {};
+//   "userRandomID": { id: "userRandomID", email: "user@example.com", password: "purple-monkey-dinosaur" },
+//  "user2RandomID": { id: "user2RandomID", email: "user2@example.com", password: "dishwasher-funk" }
 
 //Random string with 6 characters
-function generateRandomString() {
-  return Math.random().toString(36).substring(2, 8);
-};
+// function generateRandomString() {
+//   return Math.random().toString(36).substring(2, 8);
+// };
 
 //REGISTER BUTTON
 
