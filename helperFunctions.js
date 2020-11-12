@@ -12,4 +12,13 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 };
 
-module.exports = { urlsForUser, generateRandomString };
+const getUserByEmail = function (usersDB, inputEmail) {
+  for (const user in usersDB) {
+    if (usersDB[user].email === inputEmail) {
+      return usersDB[user];
+    }
+  }
+  
+}
+
+module.exports = { urlsForUser, generateRandomString, getUserByEmail };
