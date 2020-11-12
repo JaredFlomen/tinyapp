@@ -1,14 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { urlsForUser, generateRandomString, getUserByEmail } = require('./helperFunctions')
+const { urlsForUser, generateRandomString, getUserByEmail } = require('./helperFunctions');
 const app = express();
 const PORT = 8080;
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
 app.use(
   cookieSession({
     name: 'session',
@@ -18,11 +16,11 @@ app.use(
 
 const urlDatabase = {
   "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca", 
+    longURL: "http://www.lighthouselabs.ca",
     userID: 'userRandomID',
   },
   "9sm5xK": {
-    longURL: "http://www.google.com", 
+    longURL: "http://www.google.com",
     userID: 'user2RandomID'
   },
 };
@@ -48,17 +46,17 @@ app.post('/register', (req, res) => {
 
   //Adds a new user if it doesn't exist
   if (!checkUserEmail) {
-  const newUser = {
-    "id": generateRandomString(), 
-    'email': req.body.email,
-    'password': bcrypt.hashSync(req.body.password, 10),
+    const newUser = {
+      "id": generateRandomString(),
+      'email': req.body.email,
+      'password': bcrypt.hashSync(req.body.password, 10),
     };
     req.session['user_id'] = newUser['id'];
     const key = newUser["id"];
     usersDB[key] = newUser;
     res.redirect('/urls');
   } else {
-    res.send("already registered")
+    res.send("already registered");
   }
 });
 
@@ -122,7 +120,7 @@ app.get('/urls', (req, res) => {
   if (!user) {
     const templateVars = {
       email: undefined,
-    }
+    };
     return res.render('urls_login', templateVars);
   } else {
     let emailPass = user.email;
@@ -137,7 +135,7 @@ app.get('/urls/new', (req, res) => {
   const user = usersDB[req.session['user_id']];
   if (!user) {
     const templateVars = { email: undefined };
-    return res.render('urls_login', templateVars)
+    return res.render('urls_login', templateVars);
   } else {
     const templateVars = { email: user.email };
     return res.render('urls_new', templateVars);
@@ -149,21 +147,22 @@ app.post('/urls', (req, res) => {
   const randomShortURL = generateRandomString();
   const user = usersDB[req.session['user_id']];
   urlDatabase[randomShortURL] = { longURL: req.body.longURL, userID: user.id };
-  res.redirect(`/urls/${randomShortURL}`); //Redirect to new shortURL 
+  //Redirects to a shortened URL
+  res.redirect(`/urls/${randomShortURL}`);
 });
 
-//Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
+//Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs
 app.get('/urls/:shortURL', (req, res) => {
   let user = usersDB[req.session['user_id']];
   if (!user) {
-    const templateVars = { urls: urlDatabase, email: undefined }
-    return res.render('urls_index', templateVars)
+    const templateVars = { urls: urlDatabase, email: undefined };
+    return res.render('urls_index', templateVars);
   } else {
     let emailPass = user.email;
-    const templateVars = { 
+    const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL].longURL,
-      email: emailPass, 
+      email: emailPass,
     };
     res.render('urls_show', templateVars);
   }
@@ -172,7 +171,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //Edits a url from browser POST request
 app.post('/urls/:shortURL', (req, res) => {
   if (!req.body.editURL) {
-    const shortURL = req.params.shortURL
+    const shortURL = req.params.shortURL;
     return res.redirect(`/urls/${shortURL}`);
   } else {
     const user = usersDB[req.session['user_id']];
@@ -204,7 +203,7 @@ app.get('/hello', (req, res) => {
 app.get('/', (req, res) => {
   let user = usersDB[req.session['user_id']];
   if (!user) {
-    return res.redirect('/login')
+    return res.redirect('/login');
   } else {
     res.redirect('/urls');
   }
