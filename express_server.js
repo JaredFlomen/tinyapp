@@ -42,6 +42,7 @@ app.post('/register', (req, res) => {
       'email': req.body.email,
       'password': bcrypt.hashSync(req.body.password, 10),
     };
+
     req.session['user_id'] = newUser['id'];
     const key = newUser["id"];
     usersDB[key] = newUser;
@@ -52,7 +53,6 @@ app.post('/register', (req, res) => {
 });
 
 //LOGIN BUTTON
-
 app.get('/login', (req, res) => {
   const templateVars = {
     email: usersDB[req.session['user_id']]
@@ -146,9 +146,6 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   let user = usersDB[req.session['user_id']];
   let checkLong = urlDatabase[req.params.shortURL];
-  console.log(checkLong.userID);
-  // console.log("1: ", urlDatabase);
-  // console.log("2: ", usersDB[req.session['user_id']]);
   
   if (!user) {
     return res.send('Please login!');
@@ -182,7 +179,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  const shortenedURL = req.params.shortURL
+  const shortenedURL = req.params.shortURL;
   const longestURL = urlDatabase[shortenedURL].longURL;
   res.redirect(longestURL);
 });
@@ -205,7 +202,6 @@ app.get('/', (req, res) => {
   } else {
     res.redirect('/urls');
   }
-  // res.send('Hello!');
 });
 
 //Ensuring our server is listening on our PORT provided at the top of the file
