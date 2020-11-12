@@ -101,14 +101,14 @@ app.get('/login', (req, res) => {
 //Reads email and password input and if it's in the database, it sets a cookie named 'urser_id'
 app.post('/login', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.status(403).send('403 - HERE 2');
+    res.status(403).send('403');
   }
   //If wrong email, NOPE
   for (const user in usersDB) {
     if (usersDB[user].email === req.body.email) {
       // if (usersDB[user].password !== req.body.password) {
         if (!(bcrypt.compareSync(req.body.password, usersDB[user].password))){
-        return res.status(403).send('403 - HERE1');
+        return res.status(403).send('403');
       }
       // if (usersDB[user].password === req.body.password && usersDB[user].email === req.body.email) {
         if (bcrypt.compareSync(req.body.password, usersDB[user].password) && usersDB[user].email === req.body.email){
@@ -174,7 +174,7 @@ app.get('/urls', (req, res) => {
     const templateVars = {
       email: undefined,
     }
-    return res.render('urls_login', templateVars)
+    return res.render('urls_login', templateVars);
   } else {
     let emailPass = user.email;
     const superDB = urlsForUser(urlDatabase, usersDB[req.session['user_id']].id);
@@ -183,6 +183,18 @@ app.get('/urls', (req, res) => {
       email: emailPass,
     };
     res.render('urls_index', templateVars);
+  }
+});
+
+//Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
+app.get('/urls/new', (req, res) => {
+  const user = usersDB[req.session['user_id']];
+  if (!user) {
+    const templateVars = { email: undefined };
+    return res.render('urls_login', templateVars)
+  } else {
+    const templateVars = { email: user.email };
+    return res.render('urls_new', templateVars);
   }
 });
 
@@ -200,7 +212,7 @@ app.post('/urls', (req, res) => {
 
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
 app.get('/urls/:shortURL', (req, res) => {
-  const user = usersDB[req.session['user_id']];
+  let user = usersDB[req.session['user_id']];
   if (!user) {
     const templateVars = {
       urls: urlDatabase,
@@ -229,26 +241,15 @@ app.post('/urls/:shortURL', (req, res) => {
     return res.redirect(`/urls/${shortURL}`);
   } else {
     const user = usersDB[req.session['user_id']];
-
-  urlDatabase[req.params.shortURL] = {
+    urlDatabase[req.params.shortURL] = {
     longURL: req.body.editURL,
     userID: user.id,
-  };
+    };
     return res.redirect('/urls');
   }
 });
 
-//Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
-app.get('/urls/new', (req, res) => {
-  const user = usersDB[req.session['user_id']];
-  if (!user) {
-    const templateVars = { email: undefined };
-    return res.render('urls_login', templateVars)
-  } else {
-    const templateVars = { email: user.email };
-    return res.render('urls_new', templateVars);
-  }
-});
+
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
