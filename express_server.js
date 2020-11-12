@@ -86,18 +86,29 @@ app.post('/login', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(403).send('403');
   }
-  for (const user in usersDB) {
-    if (usersDB[user].email === req.body.email) {
-      if (!(bcrypt.compareSync(req.body.password, usersDB[user].password))) {
-        return res.status(403).send('403');
-      }
-      if (bcrypt.compareSync(req.body.password, usersDB[user].password) && usersDB[user].email === req.body.email) {
-        req.session['user_id'] = usersDB[user]["id"];
-        return res.redirect('/urls');
-      }
-    }
+  // for (const user in usersDB) {
+  //   if (usersDB[user].email === req.body.email) {
+  //     if (!(bcrypt.compareSync(req.body.password, usersDB[user].password))) {
+  //       return res.status(403).send('403');
+  //     }
+  //     if (bcrypt.compareSync(req.body.password, usersDB[user].password) && usersDB[user].email === req.body.email) {
+  //       req.session['user_id'] = usersDB[user]["id"];
+  //       return res.redirect('/urls');
+  //     }
+  //   }
+  // }
+  // res.redirect('/register');
+
+  //Testing out helper function 
+  let inputEmail = req.body.email;
+  let inputPassword = req.body.password;
+  const checkUserEmail = getUserByEmail(usersDB, inputEmail);
+  if (checkUserEmail && bcrypt.compareSync(inputPassword, checkUserEmail.password)) {
+    req.session['user_id'] = checkUserEmail.id;
+    return res.redirect('/urls');
+  } else {
+    return res.redirect('/register');
   }
-  res.redirect('/register');
 });
 
 //When clicking 'logout' button -> clear cookies
