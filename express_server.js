@@ -14,16 +14,7 @@ app.use(
   })
 );
 
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: 'userRandomID',
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: 'user2RandomID'
-  },
-};
+const urlDatabase = {};
 
 //Object/Database to save Login information
 const usersDB = {};
@@ -154,9 +145,11 @@ app.post('/urls', (req, res) => {
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs
 app.get('/urls/:shortURL', (req, res) => {
   let user = usersDB[req.session['user_id']];
+  let short = req.params.shortURL;
+  console.log(urlDatabase[short].userID)
+  console.log(urlDatabase)
   if (!user) {
-    const templateVars = { urls: urlDatabase, email: undefined };
-    return res.render('urls_index', templateVars);
+    return res.send('Not available to you!')
   } else {
     let emailPass = user.email;
     const templateVars = {
@@ -185,9 +178,8 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //Redirects the browser to the longURL, to a new website not on localHost
 app.get('/u/:shortURL', (req, res) => {
-  const shortURLKey = req.params.shortURL
-  console.log("FULL DB: ", urlDatabase);
-  const longestURL = urlDatabase[shortURLKey].longURL;
+  const shortenedURL = req.params.shortURL
+  const longestURL = urlDatabase[shortenedURL].longURL;
   res.redirect(longestURL);
 });
 
