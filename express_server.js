@@ -146,12 +146,13 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   let user = usersDB[req.session['user_id']];
   let checkLong = urlDatabase[req.params.shortURL];
+  console.log(checkLong.userID);
   // console.log("1: ", urlDatabase);
   // console.log("2: ", usersDB[req.session['user_id']]);
   
   if (!user) {
     return res.send('Please login!');
-  } else if (!checkLong) {
+  } else if (checkLong.userID !== req.session['user_id']) {
     return res.send('Not yours!');
   } else {
     let emailPass = user.email;
