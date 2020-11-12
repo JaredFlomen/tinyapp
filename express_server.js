@@ -1,12 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session')
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+// app.use(cookieParser());
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2'],
+  })
+);
 
 const urlDatabase = {
   "b2xVn2": {
@@ -75,7 +82,8 @@ app.post('/register', (req, res) => {
     'email': req.body.email,
     'password': bcrypt.hashSync(req.body.password, 10),
   };
-  res.cookie('user_id', newUser["id"]);
+  // res.cookie('user_id', newUser["id"]);
+  req.session['user_id'] = newUser['id'];
   const key = newUser["id"];
   usersDB[key] = newUser;
   res.redirect('/urls');
@@ -104,7 +112,8 @@ app.post('/login', (req, res) => {
       }
       // if (usersDB[user].password === req.body.password && usersDB[user].email === req.body.email) {
         if (bcrypt.compareSync(req.body.password, usersDB[user].password) && usersDB[user].email === req.body.email){
-        res.cookie('user_id', usersDB[user]["id"]);
+        // res.cookie('user_id', usersDB[user]["id"]);
+        req.session['user_id'] = usersDB[user]["id"];
         return res.redirect('/urls');
       }
     }
@@ -130,7 +139,8 @@ app.post('/login', (req, res) => {
 //When clicking 'logout' button -> clear cookies
 app.post('/logout', (req, res) => {
   //Clears the cookie
-  res.clearCookie('user_id');
+  // res.clearCookie('user_id');
+  req.session = null;
   //Redirects to registration form
   res.redirect('/register');
 });
