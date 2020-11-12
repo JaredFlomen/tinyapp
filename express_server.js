@@ -80,7 +80,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   req.session = null;
   //Redirects to registration form
-  res.redirect('/register');
+  res.redirect('/urls');
 });
 
 //EDIT AND DELETE BUTTONS
@@ -145,11 +145,14 @@ app.post('/urls', (req, res) => {
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs
 app.get('/urls/:shortURL', (req, res) => {
   let user = usersDB[req.session['user_id']];
-  let short = req.params.shortURL;
-  console.log(urlDatabase[short].userID)
-  console.log(urlDatabase)
+  let checkLong = urlDatabase[req.params.shortURL];
+  // console.log("1: ", urlDatabase);
+  // console.log("2: ", usersDB[req.session['user_id']]);
+  
   if (!user) {
-    return res.send('Not available to you!')
+    return res.send('Please login!');
+  } else if (!checkLong) {
+    return res.send('Not yours!');
   } else {
     let emailPass = user.email;
     const templateVars = {
