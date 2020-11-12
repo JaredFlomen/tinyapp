@@ -93,7 +93,7 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   const templateVars = {
-    email: usersDB[req.cookies['user_id']]
+    email: usersDB[req.session['user_id']]
   };
   res.render('urls_login', templateVars);
 });
@@ -149,7 +149,7 @@ app.post('/logout', (req, res) => {
 
 //Deletes a url when delete button clicked
 app.post('/urls/:shortURL/delete', (req, res) => {
-  let uniqueID = usersDB[req.cookies['user_id']].id;
+  let uniqueID = usersDB[req.session['user_id']].id;
   if (urlDatabase[req.params.shortURL].userID === uniqueID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
@@ -158,7 +158,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 //Redirects to edit page when edit button is clicked
 app.post('/urls/:shortURL/edit', (req, res) => {
-  let uniqueID = usersDB[req.cookies['user_id']].id;
+  let uniqueID = usersDB[req.session['user_id']].id;
   if (urlDatabase[req.params.shortURL].userID === uniqueID) {
     urlDatabase[req.params.shortURL].longURL = req.body.editURL;
     res.redirect('/urls');
@@ -169,7 +169,7 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 
 //Upon a browser request for URLs, the server sends back a database containing all URLs along with an html file for the browser to render
 app.get('/urls', (req, res) => {
-  const user = usersDB[req.cookies['user_id']];
+  const user = usersDB[req.session['user_id']];
   if (!user) {
     const templateVars = {
       email: undefined,
@@ -177,7 +177,7 @@ app.get('/urls', (req, res) => {
     return res.render('urls_login', templateVars)
   } else {
     let emailPass = user.email;
-    const superDB = urlsForUser(urlDatabase, usersDB[req.cookies['user_id']].id);
+    const superDB = urlsForUser(urlDatabase, usersDB[req.session['user_id']].id);
     const templateVars = { 
       urls: superDB, 
       email: emailPass,
@@ -189,7 +189,7 @@ app.get('/urls', (req, res) => {
 //Browser sends a POST request with a longURL & a shortURL is generated and stored within the database with the corresponding longURL
 app.post('/urls', (req, res) => {
   const randomShortURL = generateRandomString();
-  const user = usersDB[req.cookies['user_id']];
+  const user = usersDB[req.session['user_id']];
 
   urlDatabase[randomShortURL] = {
     longURL: req.body.longURL,
@@ -200,7 +200,7 @@ app.post('/urls', (req, res) => {
 
 //Upon a GET request from the browser for a specific shortURL, the server sends back an html file displaying the long & short URLs 
 app.get('/urls/:shortURL', (req, res) => {
-  const user = usersDB[req.cookies['user_id']];
+  const user = usersDB[req.session['user_id']];
   if (!user) {
     const templateVars = {
       urls: urlDatabase,
@@ -228,7 +228,7 @@ app.post('/urls/:shortURL', (req, res) => {
     const shortURL = req.params.shortURL
     return res.redirect(`/urls/${shortURL}`);
   } else {
-    const user = usersDB[req.cookies['user_id']];
+    const user = usersDB[req.session['user_id']];
 
   urlDatabase[req.params.shortURL] = {
     longURL: req.body.editURL,
@@ -240,7 +240,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 //Renders the HTML file urls_new which promts the browser to enter a longURL to be shortened
 app.get('/urls/new', (req, res) => {
-  const user = usersDB[req.cookies['user_id']];
+  const user = usersDB[req.session['user_id']];
   if (!user) {
     const templateVars = { email: undefined };
     return res.render('urls_login', templateVars)
