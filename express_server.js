@@ -42,13 +42,12 @@ app.post('/register', (req, res) => {
       'email': req.body.email,
       'password': bcrypt.hashSync(req.body.password, 10),
     };
-
     req.session['user_id'] = newUser['id'];
     const key = newUser["id"];
     usersDB[key] = newUser;
     res.redirect('/urls');
   } else {
-    res.send("already registered");
+    res.send("Already registered!");
   }
 });
 
@@ -63,7 +62,8 @@ app.get('/login', (req, res) => {
 //Reads email and password input and if it's in the database, it sets a cookie named 'urser_id'
 app.post('/login', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.status(403).send('403');
+    const templateVars = { email: undefined, error: '403' };
+    res.status(403).render('urls_error', templateVars);
   }
   let inputEmail = req.body.email;
   let inputPassword = req.body.password;
