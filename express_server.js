@@ -30,7 +30,11 @@ app.get('/register', (req, res) => {
 //Logs the email, password and ID in users object
 app.post('/register', (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
-    res.status(400).send('400');
+    const templateVars = {
+      email: null, 
+      error: '400',
+    }
+    res.status(400).render('urls_error', templateVars);
   }
   let inputEmail = req.body.email;
   const checkUserEmail = getUserByEmail(usersDB, inputEmail);
@@ -47,7 +51,12 @@ app.post('/register', (req, res) => {
     usersDB[key] = newUser;
     res.redirect('/urls');
   } else {
-    res.send("Already registered!");
+    const templateVars = {
+      email: null,
+      error: 'Already Registered'
+    }
+    res.render('urls_error', templateVars);
+    // res.send("Already registered!");
   }
 });
 

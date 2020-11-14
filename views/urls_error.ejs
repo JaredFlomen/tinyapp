@@ -9,6 +9,12 @@
   <%- include('partials/_header') %>
   <% if (error === '403') { %>
     <h5 style="color: red;">403 Error - Forbidden</h5>
-    <% } %>
+  <% } %>
+  <% if (error === '400') { %>
+    <h5 style="color: red;">400 Error - Bad Request</h5>
+  <% } %>
+  <% if (error === 'Already Registered') { %>
+    <h5 style="color: red;">Already Registered! Please Login</h5>
+  <% } %>
 </body>
 </html>
